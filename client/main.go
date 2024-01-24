@@ -14,6 +14,9 @@ func main() {
     if err != nil {
 		fmt.Println("Error reading CA certificate:", err)
     }
+
+	// Create certificate pool and add caCert to it; it will be used for server certificate verification
+	// Certificate pool is a collection of trusted certificates, typically used for verifying the authenticity of the server's certificate during a connection establishment
 	caCertPool := x509.NewCertPool()
     caCertPool.AppendCertsFromPEM(caCert)
 
@@ -26,7 +29,7 @@ func main() {
 		fmt.Println("client certificates loaded successfully")
 	}
 
-	// Create a TLS configuration
+	// Create a TLS configuration in order to set up a secure connection
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{clientCert},
 		RootCAs:      caCertPool,
@@ -40,11 +43,15 @@ func main() {
 	}
 
 	// Make a request to the server
-	resp, err := client.Get("https://localhost:8443")
+	// CN (common name) and SAN (SubjectAltName) in the server cetificate should be both = localhost
+	resp, err := client.Get("https://localhost:8443/")
 	if err != nil {
 		fmt.Println("Error making request:", err)
 		return
+	}else{
+		fmt.Println("Successful request : server verified by the CA")
 	}
+	// Defers the closing of the response body until the surrounding function (main) exits
 	defer resp.Body.Close()
 
 	// Read and print the response
