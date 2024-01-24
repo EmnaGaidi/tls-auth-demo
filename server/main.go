@@ -29,16 +29,19 @@ func main() {
 	}
 
 	fmt.Println("Server is running on https://localhost:8443")
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Received request for:", r.URL.Path)
+
+		// Send a response back to the client
+		w.Write([]byte("Hello, client! This is the server response."))
+	}) 
+
 	err = server.ListenAndServeTLS("../certs/server/server.crt", "../certs/server/server.key")
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}else{
 		fmt.Println("server started")
 	}
-	/*
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("Received request for:", r.URL.Path)
-    // Your existing handler logic
-    })*/
 
 }
